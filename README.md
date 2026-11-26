@@ -1,5 +1,7 @@
 # Agent Engineering Kit — v2.2.1
 
+[![Kit CI](https://github.com/dsj7419/agent-engineering-kit/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dsj7419/agent-engineering-kit/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A portable, language-agnostic engineering governance kit for Claude Code, Codex, Gemini CLI and other repository-aware agents. Includes SOLID/SRP, DDD, modular engineering, safe refactoring, audit coverage, independent review, revision-aware handoff and optional executable quality-gate orchestration.
 
 ## Quick start
@@ -17,7 +19,7 @@ git clone https://github.com/dsj7419/agent-engineering-kit.git
 cd agent-engineering-kit
 ```
 
-The repository must be accessible to your GitHub account while it is private. Template mode is off for v2.2.1; use the installer to import the portable files without copying the kit's release infrastructure or examples.
+Template mode is off for v2.2.1; use the installer to import the portable files without copying the kit's release infrastructure or examples.
 
 For a new project, first create an empty directory outside the kit:
 
@@ -111,6 +113,6 @@ The kit is complete as a reusable template, not configured or tested against you
 - [Benchmark protocol](benchmarks/README.md): one starter task, acceptance evaluator and recording template; no comparative agent results yet.
 - Run `python tools/release/check_release.py` to verify the kit itself. GitHub Actions runs the same checks on Linux, Windows and macOS with Python 3.11 and 3.13, including Windows PowerShell 5.1 and PowerShell 7 installer smoke tests. A separate Linux job verifies the Java example with an explicitly selected Java 17 JDK. These workflows are not target-project CI.
 - [Contribution guide](CONTRIBUTING.md), [security policy](SECURITY.md), [code of conduct](CODE_OF_CONDUCT.md), [roadmap](ROADMAP.md) and [public launch checklist](RELEASE_CHECKLIST.md).
-- [MIT license](LICENSE) and citation metadata (`CITATION.cff`). The release owner must confirm distribution rights before public launch.
+- [MIT license](LICENSE) and citation metadata (`CITATION.cff`).
 
 No claim of superiority, production validation or guaranteed agent compliance is made. Verify with your stack and agent versions before relying on the kit.
