@@ -1,0 +1,1 @@
+"""Minimal order bounded context."""

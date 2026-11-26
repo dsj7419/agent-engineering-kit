@@ -1,0 +1,98 @@
+name: Kit CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verification:
+    name: Verify (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify release and tests
+        run: python tools/release/check_release.py
+      - name: Bash installer smoke test
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          target=$(mktemp -d)
+          trap 'rm -rf "$target"' EXIT
+          bash install.sh --target "$target" --with-tools
+          test -z "$(ls -A "$target")"
+          bash install.sh --target "$target" --apply --with-tools
+          test -f "$target/AGENTS.md"
+          test -f "$target/tools/engineering/run_gates.py"
+          test -f "$target/docs/engineering/KIT-LICENSE.txt"
+      - name: PowerShell 7 installer preview and apply
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid().ToString())
+          New-Item -ItemType Directory -Path $target | Out-Null
+          try {
+            & ./INSTALL.ps1 -Target $target -WithTools
+            if ($LASTEXITCODE -ne 0 -or @(Get-ChildItem -LiteralPath $target -Force).Count -ne 0) { throw 'Preview failed' }
+            & ./INSTALL.ps1 -Target $target -Apply -WithTools
+            if ($LASTEXITCODE -ne 0) { throw 'Installer failed' }
+            foreach ($relative in @('AGENTS.md', 'tools/engineering/run_gates.py', 'docs/engineering/KIT-LICENSE.txt')) {
+              if (!(Test-Path -LiteralPath (Join-Path $target $relative))) { throw "Missing $relative" }
+            }
+          } finally {
+            $resolved = (Resolve-Path -LiteralPath $target).Path
+            $tempRoot = (Resolve-Path -LiteralPath $env:RUNNER_TEMP).Path
+            if (!$resolved.StartsWith($tempRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe cleanup path' }
+            Remove-Item -LiteralPath $resolved -Recurse -Force
+          }
+      - name: Windows PowerShell 5.1 installer preview and apply
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP ([guid]::NewGuid().ToString())
+          New-Item -ItemType Directory -Path $target | Out-Null
+          try {
+            & ./INSTALL.ps1 -Target $target -WithTools
+            if ($LASTEXITCODE -ne 0 -or @(Get-ChildItem -LiteralPath $target -Force).Count -ne 0) { throw 'Preview failed' }
+            & ./INSTALL.ps1 -Target $target -Apply -WithTools
+            if ($LASTEXITCODE -ne 0) { throw 'Installer failed' }
+            foreach ($relative in @('AGENTS.md', 'tools/engineering/run_gates.py', 'docs/engineering/KIT-LICENSE.txt')) {
+              if (!(Test-Path -LiteralPath (Join-Path $target $relative))) { throw "Missing $relative" }
+            }
+          } finally {
+            $resolved = (Resolve-Path -LiteralPath $target).Path
+            $tempRoot = (Resolve-Path -LiteralPath $env:RUNNER_TEMP).Path
+            if (!$resolved.StartsWith($tempRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe cleanup path' }
+            Remove-Item -LiteralPath $resolved -Recurse -Force
+          }
+  java:
+    name: Verify Java 17
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify Java environment and example
+        run: |
+          java -version
+          javac -version
+          python tools/release/check_java_example.py

@@ -1,0 +1,7 @@
+# Upgrading from v2.0, v2.1 or v2.2.0
+
+Back up or commit your existing project and inspect the diff. The installer intentionally refuses conflicts. Do not replace populated state, ADRs, audit records, user edits or project-specific agent rules with blank templates. Merge shared instructions and engineering documents from the new release; add METRICS_POLICY.md, STANDARDS_ALIGNMENT.md and METRICS_PROFILE.md (the latter belongs in docs/state). Merge the new quality-gate, audit, debt and architecture template fields only where useful. Preserve existing CSV audit data and map any new columns explicitly.
+
+Inventory existing analyzer rules, CI requirements, debt baselines and exceptions. Universal caps in the former kit are retired as kit defaults. If a project approved or implemented any as blocking gates, they remain binding until the owner authorizes a change. Propose calibration, identify false positives, review the gate diff independently and rerun verification. Do not disable or reclassify approved checks just to pass. Record profile selection, evidence and updated approval. Reconcile handoff state with the new version and actual snapshot. The upgrade itself does not authorize production refactoring.
+
+For v2.2.0 to v2.2.1, merge AGENTS.md, the constitution and AGENT_WORKFLOW.md; preserve local overlays and populated state. Update the standards version only after reconciliation. Confirm current context and approved gates before allowing routine fast-path work. No metric or gate approval changes are implied by this patch.

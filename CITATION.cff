@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using this metadata."
+title: "Agent Engineering Kit"
+type: software
+version: 2.2.1
+license: MIT
+repository-code: "https://github.com/dsj7419/agent-engineering-kit"
+authors:
+  - name: "Agent Engineering Kit contributors"
+abstract: "A portable engineering governance kit for repository-aware coding agents."
